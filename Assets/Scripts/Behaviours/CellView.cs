@@ -3,9 +3,12 @@ using UnityEngine.UI;
 
 using System;
 using System.Collections.Generic;
+
+using NetworkTicTacToe.State;
+
 using Mirror;
 
-namespace NetworkTicTacToe {
+namespace NetworkTicTacToe.Behaviours {
 	public class CellView : NetworkBehaviour {
 		[Serializable]
 		public class CellSpriteContainer {
