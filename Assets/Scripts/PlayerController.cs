@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
+
+using System.Collections.Generic;
+
 using NetworkTicTacToe.Utils;
-using UnityEngine;
 
 namespace NetworkTicTacToe {
 	public class PlayerController : Singleton<PlayerController> {
