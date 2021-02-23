@@ -131,10 +131,10 @@ GameObject:
   m_Component:
   - component: {fileID: 33483132}
   - component: {fileID: 33483131}
-  - component: {fileID: 33483130}
   - component: {fileID: 33483135}
   - component: {fileID: 33483134}
   - component: {fileID: 33483133}
+  - component: {fileID: 33483130}
   m_Layer: 0
   m_Name: NetModule
   m_TagString: Untagged
@@ -151,7 +151,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 33483129}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 809f7fdf3f6a4bd4985bffad49506c5d, type: 3}
+  m_Script: {fileID: 11500000, guid: cbd04b3bc5974cc2ae3bf44fbf090cd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   syncMode: 0
@@ -324,6 +324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4824055c227c1a04aab55d6de22a7a1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  GameplayUpdater: {fileID: 33483130}
 --- !u!1001 &506698478
 PrefabInstance:
   m_ObjectHideFlags: 0

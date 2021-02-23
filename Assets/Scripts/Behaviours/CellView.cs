@@ -10,8 +10,8 @@ namespace NetworkTicTacToe.Behaviours {
 	public class CellView : MonoBehaviour {
 		[Serializable]
 		public class CellSpriteContainer {
-			public CellState State;
-			public Sprite    Sprite;
+			public CellType Type;
+			public Sprite   Sprite;
 		}
 
 		public Image                     Image;
@@ -31,9 +31,9 @@ namespace NetworkTicTacToe.Behaviours {
 		
 		public void UpdateView() {
 			var curState        = _gameplayController.GetCellState(_x, _y);
-			var spriteContainer = Sprites.Find(x => (x.State == curState));
+			var spriteContainer = Sprites.Find(x => (x.Type == curState));
 			Image.sprite        = spriteContainer?.Sprite;
-			Button.interactable = (curState == CellState.None);
+			Button.interactable = (curState == CellType.None);
 		}
 	}
 }

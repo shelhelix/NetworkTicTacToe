@@ -225,7 +225,7 @@ MonoBehaviour:
   Image: {fileID: 1318516842275461676}
   Button: {fileID: 8049658352909751615}
   Sprites:
-  - State: 1
+  - Type: 1
     Sprite: {fileID: 21300000, guid: ab290b8fae0640d45a90841d872d37f2, type: 3}
-  - State: 2
+  - Type: 2
     Sprite: {fileID: 21300000, guid: cabd1138e9be54644b351c35633a3d2f, type: 3}

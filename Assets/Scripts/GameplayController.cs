@@ -6,24 +6,25 @@ using NetworkTicTacToe.State;
 
 namespace NetworkTicTacToe {
 	public class GameplayController {
-		CellState[,] _gameBoard = new CellState[3, 3];
+		CellType[,] _gameBoard = new CellType[3, 3];
 
 		public int GridSideSize => _gameBoard.GetLength(0);
 		
 		public event Action OnStateChanged;
 		
-		public void SetCellValue(CellState newState, int x, int y) {
+		public bool TrySetCellValue(CellType newType, int x, int y) {
 			if ( !IsCellAvailable(x, y) ) {
 				Debug.LogError($"Can't set cell value - coords are invalid ({x},{y}) or cell isn't empty");
-				return;
+				return false;
 			}
-			_gameBoard[x, y] = newState;
+			_gameBoard[x, y] = newType;
+			return true;
 		}
 
-		public CellState GetCellState(int x, int y) {
+		public CellType GetCellState(int x, int y) {
 			if ( !IsCellAvailable(x, y) ) {
 				Debug.LogError($"Can't set cell value - coords are invalid ({x},{y}) or cell isn't empty");
-				return CellState.Invalid;
+				return CellType.Invalid;
 			}
 			return _gameBoard[x, y];
 		}
@@ -36,7 +37,7 @@ namespace NetworkTicTacToe {
 			if ( AreCoordsCorrect(x, y) ) {
 				return false;
 			}
-			return _gameBoard[x, y] == CellState.None;
+			return _gameBoard[x, y] == CellType.None;
 		}
 	}
 }
