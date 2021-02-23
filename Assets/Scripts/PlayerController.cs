@@ -6,12 +6,20 @@ using NetworkTicTacToe.Utils;
 
 namespace NetworkTicTacToe {
 	public class PlayerController : Singleton<PlayerController> {
+		public const int NeededPlayers = 2;
+		
 		// Converting player id => player side
 		readonly Dictionary<int, PlayerSide> _allPlayers = new Dictionary<int, PlayerSide>();
+
+		public int ReadyPlayers => _allPlayers.Count;
 		
 		public bool TryAddPlayer(int playerId) {
-			if ( _allPlayers.Count == 2 ) {
+			if ( _allPlayers.Count == NeededPlayers ) {
 				Debug.LogError("Can't add player - room is full");
+				return false;
+			}
+			if ( _allPlayers.ContainsKey(playerId) ) {
+				Debug.LogError($"Can't add player - player with id {playerId} already connected");
 				return false;
 			}
 			_allPlayers.Add(playerId, (_allPlayers.Count == 0) ? PlayerSide.Circle : PlayerSide.Cross);
