@@ -6,10 +6,8 @@ using System.Collections.Generic;
 
 using NetworkTicTacToe.State;
 
-using Mirror;
-
 namespace NetworkTicTacToe.Behaviours {
-	public class CellView : NetworkBehaviour {
+	public class CellView : MonoBehaviour {
 		[Serializable]
 		public class CellSpriteContainer {
 			public CellState State;
@@ -36,11 +34,6 @@ namespace NetworkTicTacToe.Behaviours {
 			var spriteContainer = Sprites.Find(x => (x.State == curState));
 			Image.sprite        = spriteContainer?.Sprite;
 			Button.interactable = (curState == CellState.None);
-		}
-
-		[Command]
-		public void CmdPlaceCell(int x, int y) {
-			
 		}
 	}
 }

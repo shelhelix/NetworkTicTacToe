@@ -780,8 +780,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1698100330}
-  - component: {fileID: 1698100329}
   - component: {fileID: 1698100328}
+  - component: {fileID: 1698100329}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -808,7 +808,7 @@ MonoBehaviour:
   CongestionWindow: 0
   SendWindowSize: 4096
   ReceiveWindowSize: 4096
-  debugLog: 0
+  debugLog: 1
   statisticsGUI: 0
   statisticsLog: 0
 --- !u!114 &1698100329
@@ -820,26 +820,27 @@ MonoBehaviour:
   m_GameObject: {fileID: 1698100327}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8aab4c8111b7c411b9b92cf3dbc5bd4e, type: 3}
+  m_Script: {fileID: 11500000, guid: 99421adb9061480bb30f3f5ef741838f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
   autoStartServerBuild: 1
-  showDebugMessages: 0
+  showDebugMessages: 1
   serverTickRate: 30
   serverBatching: 0
   serverBatchInterval: 0
   offlineScene: 
   onlineScene: Assets/Scenes/TicTacToe.unity
   transport: {fileID: 1698100328}
-  networkAddress: localhost
+  networkAddress: 192.168.1.9
   maxConnections: 100
-  disconnectInactiveConnections: 0
+  disconnectInactiveConnections: 1
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
-  playerPrefab: {fileID: 0}
-  autoCreatePlayer: 0
+  playerPrefab: {fileID: 5218777239639470791, guid: fee0c2d6700556b46b8871c592855601,
+    type: 3}
+  autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs: []
 --- !u!4 &1698100330
