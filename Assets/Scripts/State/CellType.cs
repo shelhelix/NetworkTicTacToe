@@ -1,8 +1,8 @@
 ﻿namespace NetworkTicTacToe {
-	public enum PlayerSide {
+	public enum CellType {
 		Cross,
 		Circle,
-		
+		Empty,
 		Invalid
 	}
 }
