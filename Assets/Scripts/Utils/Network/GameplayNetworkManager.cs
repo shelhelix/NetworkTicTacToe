@@ -42,17 +42,6 @@ namespace NetworkTicTacToe.Behaviours {
 			Server = null;
 		}
 
-		public override void OnServerConnect(NetworkConnection conn) {
-			base.OnServerConnect(conn);
-			// ignore if it isn't a local client cause remote clients will be processed in OnServerAddPlayer
-			if ( conn.connectionId != 0 ) {
-				return;
-			}
-			Debug.Log($"Server: added player with id {conn.connectionId}");
-			Clients.Add(new NetAgentState{Connection = conn, IsReady = false});
-		}
-
-
 		public override void OnServerAddPlayer(NetworkConnection conn) {
 			base.OnServerAddPlayer(conn);
 			Debug.Log($"Server: added player with id {conn.connectionId}");
