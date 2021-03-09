@@ -1,11 +1,13 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using Mirror;
 
 using NetworkTicTacToe.State;
-
-using Mirror;
+using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Behaviours {
 	public class GameplayNetworkManager : NetworkManager {
@@ -13,20 +15,49 @@ namespace NetworkTicTacToe.Behaviours {
 		public List<NetAgentState> Clients = new List<NetAgentState>();
 
 		bool _isServerReadyLocally;
-		
+
 		// Server-only network manager is not supported 
-		public bool IsReady => (IsClient) && Server.IsReady; 
+		public bool IsReady => (IsClient) && Server.IsReady;
+
+		public bool                             IsClient => Server != null;
+		public bool                             IsServer => Clients.Count != 0;
 		
-		public bool IsClient => Server != null;
-		public bool IsServer => Clients.Count != 0;
+		public event Action OnServerReadyToPlay;
+
+		public event Action<DataNetworkMessage> OnReceivedDataMessage;
+
+		MemoryStream    _stream    = new MemoryStream();
+		BinaryFormatter _formatter = new BinaryFormatter();
+		
+		public void SendDataMessageToServer(object data) {
+			SendDataMessage(Server.Connection, data);
+		}
+		public void SendDataMessageToAllNonHostClients(object data) {
+			foreach ( var client in Clients ) {
+				//Don't send info to the local client 
+				if ( IsLocalClient(client) ) {
+					continue;
+				}
+				SendDataMessage(client.Connection, data);
+			}
+		}
+		
+		public void SendDataMessage(NetworkConnection connection, object data) {
+			_stream.SetLength(0);
+			_formatter.Serialize(_stream, data);
+			var bytes = _stream.ToArray();
+			var message = new DataNetworkMessage {Bytes = bytes};
+			connection.Send(message);
+		}
 
 		public override void OnStartHost() {
 			NetworkServer.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
+			NetworkServer.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 			base.OnStartHost();
 		}
 
 		public override void OnStartClient() {
-			NetworkClient.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
+			NetworkClient.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 			base.OnStartClient();
 		}
 
@@ -60,7 +91,12 @@ namespace NetworkTicTacToe.Behaviours {
 
 		public void SetServerAsReadyToPlay() {
 			_isServerReadyLocally = true;
+			OnServerReadyToPlay?.Invoke();
 			TrySendServerReadyMessage();
+		}
+
+		bool IsLocalClient(NetAgentState client) {
+			return client.Connection.connectionId == 0;
 		}
 
 		void OnNetAgentIsReadyToPlay(NetworkConnection conn, NetAgentIsReadyToPlayNetEvent e) {
@@ -71,8 +107,13 @@ namespace NetworkTicTacToe.Behaviours {
 				Debug.Log($"Server: set client as ready {conn.connectionId}");
 			} else {
 				Server.IsReady = true;
+				OnServerReadyToPlay?.Invoke();
 				Debug.Log($"Client: set server as ready {conn.connectionId}");
 			}
+		}
+
+		void OnDataMessageReceived(DataNetworkMessage dataNetworkMessage) {
+			OnReceivedDataMessage?.Invoke(dataNetworkMessage);
 		}
 
 		void TrySendServerReadyMessage() {

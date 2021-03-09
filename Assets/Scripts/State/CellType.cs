@@ -1,8 +1,8 @@
-﻿namespace NetworkTicTacToe {
+﻿namespace NetworkTicTacToe.State {
 	public enum CellType {
+		Empty,
 		Cross,
 		Circle,
-		Empty,
 		Invalid
 	}
 }
