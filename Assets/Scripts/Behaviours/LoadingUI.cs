@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 
 using Mirror;
+using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Behaviours {
 	public class LoadingUI : MonoBehaviour {
@@ -8,7 +9,7 @@ namespace NetworkTicTacToe.Behaviours {
 		bool isLoading;
 
 		void Update() {
-			var networkManager = NetworkManager.singleton as GameplayNetworkManager;
+			var networkManager = NetworkManager.singleton as BaseNetworkManager;
 			if ( networkManager.Clients.Count == 2 && !isLoading ) {
 				networkManager.ServerChangeScene("TicTacToe");
 				isLoading = true;

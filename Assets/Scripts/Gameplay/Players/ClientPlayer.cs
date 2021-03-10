@@ -2,39 +2,40 @@
 
 using NetworkTicTacToe.Behaviours;
 using NetworkTicTacToe.Gameplay.NetworkEvents;
+using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Gameplay.Players {
 	public class ClientPlayer {
 		public PlayerSide PlayerSide;
 
 		readonly GameplayController     _gameplayController;
-		readonly GameplayNetworkManager _gameplayNetworkManager;
+		readonly BaseNetworkManager _baseNetworkManager;
 		
-		public ClientPlayer(GameplayNetworkManager gameplayNetworkManager, GameplayController gameplayController) {
+		public ClientPlayer(BaseNetworkManager baseNetworkManager, GameplayController gameplayController) {
 			_gameplayController                           =  gameplayController;
-			_gameplayNetworkManager                       =  gameplayNetworkManager;
-			_gameplayNetworkManager.RegisterClientCallback<GameStateChanged>(OnUpdatedStateReceived);
-			_gameplayNetworkManager.RegisterClientCallback<PlayerSideChanged>(OnUpdatedPlayerSide);
-			if ( _gameplayNetworkManager.IsClient ) {
+			_baseNetworkManager                       =  baseNetworkManager;
+			_baseNetworkManager.RegisterClientCallback<GameStateChanged>(OnUpdatedStateReceived);
+			_baseNetworkManager.RegisterClientCallback<PlayerSideChanged>(OnUpdatedPlayerSide);
+			if ( _baseNetworkManager.IsClient ) {
 				_gameplayController.OnTurnChanged += SendGameStateToServer;
 			}
 		}
 
 		public void Deinit() {
-			_gameplayNetworkManager.UnregisterClientCallbacks<GameStateChanged>();
-			_gameplayNetworkManager.UnregisterClientCallbacks<PlayerSideChanged>();
+			_baseNetworkManager.UnregisterClientCallbacks<GameStateChanged>();
+			_baseNetworkManager.UnregisterClientCallbacks<PlayerSideChanged>();
 			_gameplayController.OnTurnChanged -= SendGameStateToServer;
 		}
 
 		void SendGameStateToServer() {
-			_gameplayNetworkManager.SendDataMessageToServer(new GameStateChanged(_gameplayController.State));	
+			_baseNetworkManager.SendDataMessageToServer(new GameStateChanged(_gameplayController.State));	
 		}
 
 		void OnUpdatedStateReceived(GameStateChanged e) {
 			_gameplayController.State = e.State;
 			Debug.Log("Updated game state");
-			if ( _gameplayNetworkManager.IsServer ) {
-				_gameplayNetworkManager.SendDataMessageToAllNonHostClients(new GameStateChanged(_gameplayController.State));	
+			if ( _baseNetworkManager.IsServer ) {
+				_baseNetworkManager.SendDataMessageToAllNonHostClients(new GameStateChanged(_gameplayController.State));	
 			}
 		}
 

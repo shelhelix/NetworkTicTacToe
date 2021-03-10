@@ -1,9 +1,8 @@
 ﻿using Mirror;
 
-namespace NetworkTicTacToe.State {
+namespace NetworkTicTacToe.Utils.Network {
 	public class NetAgentState {
 		public NetworkConnection Connection;
-		public bool              AddedPlayer;
 		public bool              IsReady;
 	}
 }

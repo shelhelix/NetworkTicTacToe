@@ -4,6 +4,7 @@ using NetworkTicTacToe.Gameplay;
 using NetworkTicTacToe.Gameplay.Players;
 
 using Mirror;
+using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Behaviours {
     public class GameStarter : MonoBehaviour {
@@ -15,10 +16,10 @@ namespace NetworkTicTacToe.Behaviours {
         public GameplayController GameplayController;
         public ClientPlayer             ClientPlayer;
 
-        GameplayNetworkManager _networkManager;
+        BaseNetworkManager _networkManager;
 
         void Start() {
-            _networkManager    =  NetworkManager.singleton as GameplayNetworkManager;
+            _networkManager    =  NetworkManager.singleton as BaseNetworkManager;
             GameplayController =  new GameplayController();
             ClientPlayer       = new ClientPlayer(_networkManager, GameplayController);
             if ( _networkManager.IsServer ) {
