@@ -15,7 +15,7 @@ namespace NetworkTicTacToe.Behaviours {
 		public TMP_Text   MessageText;
 		
 		GameplayController _gameplayController;
-		ClientPlayer             _clientPlayer;
+		Player             _player;
 		
 		void OnDestroy() {
 			if ( _gameplayController != null ) {
@@ -34,20 +34,20 @@ namespace NetworkTicTacToe.Behaviours {
 			_gameplayController.OnStateChangedExternally += RefreshUI;
 			_gameplayController.OnTurnChanged            += RefreshUI;
 			_gameplayController.OnPartyEnded             += OnPartyEnded;
-			_clientPlayer                                =  starter.ClientPlayer;
+			_player                                =  starter.Player;
 			
-			InitCells(_gameplayController, starter.ClientPlayer);
+			InitCells(_gameplayController, starter.Player);
 			RefreshUI();
 			
 			MessageRoot.SetActive(false);
 		}
 
-		void InitCells(GameplayController gameplayController, ClientPlayer clientPlayer) {
+		void InitCells(GameplayController gameplayController, Player player) {
 			// Init cells 
 			for ( var index = 0; index < Cells.Count; index++ ) {
 				var y = index / GameplayController.BoardSideSize;
 				var x = index % GameplayController.BoardSideSize;
-				Cells[index].Init(gameplayController, clientPlayer, x, y);
+				Cells[index].Init(gameplayController, player, x, y);
 			}
 		}
 		
@@ -60,7 +60,7 @@ namespace NetworkTicTacToe.Behaviours {
 		void OnPartyEnded(PlayerSide winner) {
 			RefreshUI();
 			MessageRoot.SetActive(true);
-			MessageText.text = winner == _clientPlayer.PlayerSide ? "You win" : "You died";
+			MessageText.text = winner == _player.PlayerSide ? "You win" : "You died";
 		}
 	}
 }

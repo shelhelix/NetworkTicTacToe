@@ -1,35 +1,45 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 using System.Collections.Generic;
-
-using NetworkTicTacToe.State;
 
 using Mirror;
 
 namespace NetworkTicTacToe.Utils.Network {
-	public class BaseServerNetworkManager : NetworkManager {
-		public List<NetAgentState> Clients = new List<NetAgentState>();
+	public class BaseServerNetworkManager : BaseMessageDeliverer {
+		public readonly List<NetAgentState> Clients = new List<NetAgentState>();
 
 		bool _isServerReadyLocally;
 		
-		public bool IsServer => Clients.Count != 0;
-		
-		public override void OnStartServer() {
-			base.OnStartHost();
+		public void Init() {
 			NetworkServer.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
 		}
+		
+		public void RegisterCallback<T>(Action<T> callback) where T : struct, NetworkMessage {
+			if ( callback == null ) {
+				return;
+			}
+			NetworkServer.RegisterHandler(callback);
+		}
 
-		public override void OnServerDisconnect(NetworkConnection conn) {
-			base.OnServerDisconnect(conn);
+		public void UnregisterAllCallbacks<T>() where T : struct, NetworkMessage {
+			NetworkServer.UnregisterHandler<T>();
+		}
+
+		public void DisconnectClient(NetworkConnection conn) {
 			Debug.Log($"Server: removed player with id {conn.connectionId}");
 			Clients.RemoveAll(x => x.Connection == conn);
 		}
 
-		public void SendDataMessage<T>(NetworkConnection connection, T data) where T : struct, NetworkMessage {
-			connection.Send(data);
+		public void TryAddPlayer(NetworkConnection conn) {
+			if ( Clients.Exists(x => x.Connection == conn) ) {
+				return;
+			}
+			Clients.Add(new NetAgentState{Connection = conn});
+			Debug.Log($"Server: added player with id {conn.connectionId}");
 		}
 		
-		public void SetServerAsReadyToPlay() {
+		public void SetAsReadyToPlay() {
 			_isServerReadyLocally = true;
 			TrySendServerReadyMessage();
 		}
@@ -44,7 +54,7 @@ namespace NetworkTicTacToe.Utils.Network {
 			}
 		}
 		
-		protected virtual void OnNetAgentIsReadyToPlay(NetworkConnection conn, NetAgentIsReadyToPlayNetEvent e) {
+		void OnNetAgentIsReadyToPlay(NetworkConnection conn, NetAgentIsReadyToPlayNetEvent e) {
 			var client = Clients.Find(x => x.Connection == conn);
 			if ( client == null ) {
 				Debug.Log($"Server: Can't set client as ready - client not found {conn.address}");

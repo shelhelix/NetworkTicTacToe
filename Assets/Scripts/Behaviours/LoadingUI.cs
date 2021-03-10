@@ -5,14 +5,13 @@ using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Behaviours {
 	public class LoadingUI : MonoBehaviour {
-
-		bool isLoading;
+		bool _isLoading;
 
 		void Update() {
-			var networkManager = NetworkManager.singleton as BaseNetworkManager;
-			if ( networkManager.Clients.Count == 2 && !isLoading ) {
+			var networkManager = NetworkManager.singleton as ComplexNetworkManager;
+			if ( networkManager.IsServer && networkManager.Server.Clients.Count == 2 && !_isLoading ) {
 				networkManager.ServerChangeScene("TicTacToe");
-				isLoading = true;
+				_isLoading = true;
 			}
 		}
 	}

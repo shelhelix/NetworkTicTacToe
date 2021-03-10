@@ -2,9 +2,9 @@
 
 using NetworkTicTacToe.Gameplay;
 using NetworkTicTacToe.Gameplay.Players;
+using NetworkTicTacToe.Utils.Network;
 
 using Mirror;
-using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Behaviours {
     public class GameStarter : MonoBehaviour {
@@ -14,20 +14,20 @@ namespace NetworkTicTacToe.Behaviours {
         public GameplayUI GameplayUI;
 
         public GameplayController GameplayController;
-        public ClientPlayer             ClientPlayer;
+        public Player             Player;
 
-        BaseNetworkManager _networkManager;
+        ComplexNetworkManager _networkManager;
 
         void Start() {
-            _networkManager    =  NetworkManager.singleton as BaseNetworkManager;
+            _networkManager    =  NetworkManager.singleton as ComplexNetworkManager;
             GameplayController =  new GameplayController();
-            ClientPlayer       = new ClientPlayer(_networkManager, GameplayController);
+            Player       = new Player(_networkManager, GameplayController);
             if ( _networkManager.IsServer ) {
                 _server = new Server();
-                _server.Init(_networkManager);
+                _server.Init(_networkManager.Server);
             }
-            if ( !_networkManager.IsReady ) {
-                _networkManager.OnServerReadyToPlay += OnServerReady;
+            if ( !_networkManager.Client.IsReady ) {
+                _networkManager.Client.OnServerReadyToPlay += OnServerReady;
             } else {
                 OnServerReady();
             }
@@ -36,15 +36,16 @@ namespace NetworkTicTacToe.Behaviours {
         }
 
         void OnDestroy() {
-            ClientPlayer?.Deinit();
+            Player?.Deinit();
             _server?.Deinit();
-            _networkManager.OnServerReadyToPlay -= OnServerReady;
+            _networkManager.Client.OnServerReadyToPlay -= OnServerReady;
         }
 
         void OnServerReady() {
             _server?.SendSidesToPlayers();
             print("Game started");
             GameplayUI.Init(this);
+            _networkManager.Client.OnServerReadyToPlay -= OnServerReady;
         }
 
         void TryInitClient() {
@@ -52,7 +53,7 @@ namespace NetworkTicTacToe.Behaviours {
                 return;
             }
             Debug.Log("Register client handlers");
-            _networkManager.SetClientAsReadyToPlay();
+            _networkManager.Client.SetAsReadyToPlay();
         }
 
         void TryInitServer() {
@@ -60,7 +61,7 @@ namespace NetworkTicTacToe.Behaviours {
                 return;
             }
             Debug.Log("Register server handlers");
-            _networkManager.SetServerAsReadyToPlay();
+            _networkManager.Server.SetAsReadyToPlay();
         }
     }
 }

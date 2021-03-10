@@ -3,9 +3,7 @@
 using System;
 using System.Collections.Generic;
 
-using NetworkTicTacToe.Behaviours;
 using NetworkTicTacToe.Gameplay.NetworkEvents;
-using NetworkTicTacToe.State;
 using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Gameplay {
@@ -13,19 +11,19 @@ namespace NetworkTicTacToe.Gameplay {
 		//Converted "network id" -> "player side" 
 		Dictionary<NetAgentState, PlayerSide> _players = new Dictionary<NetAgentState, PlayerSide>();
 
-		BaseNetworkManager _baseNetworkManager;
+		BaseServerNetworkManager _baseServerNetworkManager;
 		
-		public void Init(BaseNetworkManager baseNetworkManager) {
-			if ( baseNetworkManager.Clients.Count != 2 ) {
+		public void Init(BaseServerNetworkManager baseClientNetworkManager) {
+			if ( baseClientNetworkManager.Clients.Count != 2 ) {
 				Debug.LogError("Can't assign sides to clients. Wrong amount of clients");
 				return;
 			}
 
-			_baseNetworkManager = baseNetworkManager;
+			_baseServerNetworkManager = baseClientNetworkManager;
 
 			var index = 0;
 			foreach ( PlayerSide side in Enum.GetValues(typeof(PlayerSide))) {
-				var client = baseNetworkManager.Clients[index++];
+				var client = baseClientNetworkManager.Clients[index++];
 				_players.Add(client, side);
 			}
 		}
@@ -34,7 +32,7 @@ namespace NetworkTicTacToe.Gameplay {
 
 		public void SendSidesToPlayers() {
 			foreach ( var player in _players ) {
-				_baseNetworkManager.SendDataMessage(player.Key.Connection, new PlayerSideChanged(player.Value));
+				_baseServerNetworkManager.SendDataMessage(player.Key.Connection, new PlayerSideChanged(player.Value));
 			}
 		}
 	}

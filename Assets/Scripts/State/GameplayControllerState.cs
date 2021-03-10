@@ -1,9 +1,6 @@
-﻿using System;
-
-using NetworkTicTacToe.Gameplay;
+﻿using NetworkTicTacToe.Gameplay;
 
 namespace NetworkTicTacToe.State {
-	[Serializable]
 	public sealed class GameplayControllerState {
 		public PlayerSide CurrentPlayer = PlayerSide.Cross;
 		public CellType[] Field;

@@ -1,7 +1,5 @@
 ﻿using Mirror;
 
-namespace NetworkTicTacToe.State {
-	public struct NetAgentIsReadyToPlayNetEvent : NetworkMessage {
-		
-	}
+namespace NetworkTicTacToe.Utils.Network {
+	public struct NetAgentIsReadyToPlayNetEvent : NetworkMessage { }
 }

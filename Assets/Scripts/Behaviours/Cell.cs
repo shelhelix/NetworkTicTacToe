@@ -14,11 +14,11 @@ namespace NetworkTicTacToe.Behaviours {
 		GameplayController _gameplayController;
 		Vector2Int         _cellCoords;
 		
-		public void Init(GameplayController gameplayController, ClientPlayer clientPlayer, int x, int y) {
+		public void Init(GameplayController gameplayController, Player player, int x, int y) {
 			_gameplayController = gameplayController;
 			_cellCoords = new Vector2Int(x, y);
 			
-			Button.onClick.AddListener( () => gameplayController.MakeTurn(clientPlayer.PlayerSide, x, y) );
+			Button.onClick.AddListener( () => gameplayController.MakeTurn(player.PlayerSide, x, y) );
 		}
 
 		public void Deinit() {

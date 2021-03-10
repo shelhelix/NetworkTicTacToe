@@ -1065,7 +1065,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1698100327}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99421adb9061480bb30f3f5ef741838f, type: 3}
+  m_Script: {fileID: 11500000, guid: 7a4113bbbca0460ba5620c6aae67326a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
@@ -1078,9 +1078,9 @@ MonoBehaviour:
   offlineScene: 
   onlineScene: 
   transport: {fileID: 1698100328}
-  networkAddress: 192.168.1.9
+  networkAddress: localhost
   maxConnections: 100
-  disconnectInactiveConnections: 1
+  disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 5218777239639470791, guid: fee0c2d6700556b46b8871c592855601,
@@ -1131,7 +1131,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d289a9deaeff43b59464359136495939, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkManager: {fileID: 1698100329}
   MainMenu: {fileID: 787581489}
 --- !u!4 &1918254734
 Transform:
