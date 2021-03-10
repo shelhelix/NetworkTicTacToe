@@ -26,6 +26,7 @@ namespace NetworkTicTacToe.Gameplay {
 			set {
 				_state = value;
 				OnStateChangedExternally?.Invoke();
+				CheckWin();
 			}
 		}
 		

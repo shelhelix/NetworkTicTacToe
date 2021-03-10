@@ -51,14 +51,15 @@ namespace NetworkTicTacToe.Behaviours {
 		}
 
 		public override void OnStartHost() {
+			base.OnStartHost();
 			NetworkServer.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
 			NetworkServer.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
-			base.OnStartHost();
 		}
 
 		public override void OnStartClient() {
-			NetworkClient.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 			base.OnStartClient();
+			NetworkClient.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
+			NetworkClient.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 		}
 
 		public override void OnClientConnect(NetworkConnection conn) {
@@ -75,10 +76,25 @@ namespace NetworkTicTacToe.Behaviours {
 
 		public override void OnServerAddPlayer(NetworkConnection conn) {
 			base.OnServerAddPlayer(conn);
-			Debug.Log($"Server: added player with id {conn.connectionId}");
-			Clients.Add(new NetAgentState{Connection = conn, IsReady = false});
+			var client = Clients.Find(x => x.Connection == conn);
+			if ( client != null ) {
+				client.AddedPlayer = true;
+				Debug.Log($"Server: changed player state {conn.connectionId}");
+			}
+			else {
+				Clients.Add(new NetAgentState{Connection = conn});
+				Debug.Log($"Server: added player with id {conn.connectionId}");
+			}
 		}
-		
+
+		public override void OnServerSceneChanged(string sceneName) {
+			base.OnServerSceneChanged(sceneName);
+			foreach ( var client in Clients ) {
+				client.AddedPlayer = false;
+			}
+			Debug.Log($"Server: removed all players flags");
+		}
+
 		public override void OnServerDisconnect(NetworkConnection conn) {
 			base.OnServerDisconnect(conn);
 			Debug.Log($"Server: removed player with id {conn.connectionId}");
@@ -91,7 +107,6 @@ namespace NetworkTicTacToe.Behaviours {
 
 		public void SetServerAsReadyToPlay() {
 			_isServerReadyLocally = true;
-			OnServerReadyToPlay?.Invoke();
 			TrySendServerReadyMessage();
 		}
 
@@ -120,13 +135,16 @@ namespace NetworkTicTacToe.Behaviours {
 			if ( !AreAllClientsReady() || !_isServerReadyLocally ) {
 				return;
 			}
+			Debug.Log($"Send server ready message to all clients");
 			foreach ( var client in Clients ) {
 				client.Connection.Send(new NetAgentIsReadyToPlayNetEvent());
 			}
 		}
 
 		bool AreAllClientsReady() {
-			return !(Clients.Exists(x => !x.IsReady));
+			var res = !(Clients.Exists(x => !x.IsReady));
+			Debug.Log($"Total clients {Clients.Count}");
+			return res;
 		}
 	}
 }	

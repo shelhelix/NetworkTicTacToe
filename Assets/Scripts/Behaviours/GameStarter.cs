@@ -17,12 +17,12 @@ namespace NetworkTicTacToe.Behaviours {
         void Start() {
             GameplayController            =  new GameplayController();
             _networkManager               =  NetworkManager.singleton as GameplayNetworkManager;
-            if ( !_networkManager.IsReady && _networkManager.IsServer) {
+            if ( !_networkManager.IsReady ) {
                 _networkManager.OnServerReadyToPlay += OnServerReady;
             } else {
                 OnServerReady();
             }
-            Player                        =  new Player(_networkManager, GameplayController);
+            Player = new Player(_networkManager, GameplayController);
             TryInitServer();
             TryInitClient();
         }
@@ -32,7 +32,6 @@ namespace NetworkTicTacToe.Behaviours {
             _networkManager.OnServerReadyToPlay -= OnServerReady;
         }
 
-        // Server only callback
         void OnServerReady() {
             print("Game started");
             GameplayUI.Init(this);
