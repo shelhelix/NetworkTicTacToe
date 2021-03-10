@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 
 using NetworkTicTacToe.Behaviours;
+using NetworkTicTacToe.Gameplay.NetworkEvents;
 using NetworkTicTacToe.State;
-using NetworkTicTacToe.Utils.Network;
 
 namespace NetworkTicTacToe.Gameplay {
 	public class Server {
@@ -27,21 +27,14 @@ namespace NetworkTicTacToe.Gameplay {
 				var client = gameplayNetworkManager.Clients[index++];
 				_players.Add(client, side);
 			}
-			_gameplayNetworkManager.OnReceivedDataMessage += OnMessageReceived;
 		}
 
-		public void Deinit() {
-			_gameplayNetworkManager.OnReceivedDataMessage -= OnMessageReceived;
-		}
+		public void Deinit() { }
 
 		public void SendSidesToPlayers() {
 			foreach ( var player in _players ) {
-				_gameplayNetworkManager.SendDataMessage(player.Key.Connection, player.Value);
+				_gameplayNetworkManager.SendDataMessage(player.Key.Connection, new PlayerSideChanged(player.Value));
 			}
-		}
-		
-		void OnMessageReceived(DataNetworkMessage dataNetworkMessage) {
-			
 		}
 	}
 }

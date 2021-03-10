@@ -1,59 +1,46 @@
 ﻿using UnityEngine;
 
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-
 using NetworkTicTacToe.Behaviours;
-using NetworkTicTacToe.State;
-using NetworkTicTacToe.Utils.Network;
+using NetworkTicTacToe.Gameplay.NetworkEvents;
 
 namespace NetworkTicTacToe.Gameplay.Players {
 	public class ClientPlayer {
 		public PlayerSide PlayerSide;
-		
-		GameplayController     _gameplayController;
-		GameplayNetworkManager _gameplayNetworkManager;
 
-		MemoryStream    _stream    = new MemoryStream();
-		BinaryFormatter _formatter = new BinaryFormatter();
+		readonly GameplayController     _gameplayController;
+		readonly GameplayNetworkManager _gameplayNetworkManager;
 		
 		public ClientPlayer(GameplayNetworkManager gameplayNetworkManager, GameplayController gameplayController) {
 			_gameplayController                           =  gameplayController;
 			_gameplayNetworkManager                       =  gameplayNetworkManager;
-			_gameplayNetworkManager.OnReceivedDataMessage += OnMessageReceived;
+			_gameplayNetworkManager.RegisterClientCallback<GameStateChanged>(OnUpdatedStateReceived);
+			_gameplayNetworkManager.RegisterClientCallback<PlayerSideChanged>(OnUpdatedPlayerSide);
 			if ( _gameplayNetworkManager.IsClient ) {
 				_gameplayController.OnTurnChanged += SendGameStateToServer;
 			}
 		}
 
 		public void Deinit() {
-			_gameplayNetworkManager.OnReceivedDataMessage -= OnMessageReceived;
-				_gameplayController.OnTurnChanged         -= SendGameStateToServer;
+			_gameplayNetworkManager.UnregisterClientCallbacks<GameStateChanged>();
+			_gameplayNetworkManager.UnregisterClientCallbacks<PlayerSideChanged>();
+			_gameplayController.OnTurnChanged -= SendGameStateToServer;
 		}
 
 		void SendGameStateToServer() {
-			_gameplayNetworkManager.SendDataMessageToServer(_gameplayController.State);	
+			_gameplayNetworkManager.SendDataMessageToServer(new GameStateChanged(_gameplayController.State));	
 		}
 
-		void OnMessageReceived(DataNetworkMessage dataNetworkMessage) {
-			_stream.SetLength(0);
-			_stream.Write(dataNetworkMessage.Bytes, 0, dataNetworkMessage.Bytes.Length);
-			_stream.Position = 0;
-			
-			var obj = _formatter.Deserialize(_stream);
-			switch ( obj ) {
-				case GameplayControllerState state:
-					Debug.Log("Client gameplay state updated");
-					_gameplayController.State = state;
-					if ( _gameplayNetworkManager.IsServer ) {
-						_gameplayNetworkManager.SendDataMessageToAllNonHostClients(_gameplayController.State);	
-					}
-					break;
-				case PlayerSide side:
-					Debug.Log($"Client side is {side}");
-					PlayerSide = side;
-					break;
+		void OnUpdatedStateReceived(GameStateChanged e) {
+			_gameplayController.State = e.State;
+			Debug.Log("Updated game state");
+			if ( _gameplayNetworkManager.IsServer ) {
+				_gameplayNetworkManager.SendDataMessageToAllNonHostClients(new GameStateChanged(_gameplayController.State));	
 			}
+		}
+
+		void OnUpdatedPlayerSide(PlayerSideChanged e) {
+			Debug.Log($"Client side is {e.Side}");
+			PlayerSide = e.Side;
 		}
 	}
 }

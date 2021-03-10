@@ -2,12 +2,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using Mirror;
 
+using NetworkTicTacToe.Gameplay.NetworkEvents;
 using NetworkTicTacToe.State;
-using NetworkTicTacToe.Utils.Network;
+
+using Mirror;
 
 namespace NetworkTicTacToe.Behaviours {
 	public class GameplayNetworkManager : NetworkManager {
@@ -24,15 +23,24 @@ namespace NetworkTicTacToe.Behaviours {
 		
 		public event Action OnServerReadyToPlay;
 
-		public event Action<DataNetworkMessage> OnReceivedDataMessage;
+		public void RegisterClientCallback<T>(Action<T> callback) where T : struct, NetworkMessage {
+			if ( callback == null ) {
+				return;
+			}
+			NetworkServer.RegisterHandler(callback);
+			NetworkClient.RegisterHandler(callback);
+		}
 
-		MemoryStream    _stream    = new MemoryStream();
-		BinaryFormatter _formatter = new BinaryFormatter();
+		public void UnregisterClientCallbacks<T>() where T : struct, NetworkMessage {
+			NetworkClient.UnregisterHandler<T>();
+			NetworkServer.UnregisterHandler<T>();
+		}
 		
-		public void SendDataMessageToServer(object data) {
+		public void SendDataMessageToServer<T>(T data) where T : struct, NetworkMessage {
 			SendDataMessage(Server.Connection, data);
 		}
-		public void SendDataMessageToAllNonHostClients(object data) {
+		
+		public void SendDataMessageToAllNonHostClients<T>(T data) where T : struct, NetworkMessage {
 			foreach ( var client in Clients ) {
 				//Don't send info to the local client 
 				if ( IsLocalClient(client) ) {
@@ -41,31 +49,25 @@ namespace NetworkTicTacToe.Behaviours {
 				SendDataMessage(client.Connection, data);
 			}
 		}
-		
-		public void SendDataMessage(NetworkConnection connection, object data) {
-			_stream.SetLength(0);
-			_formatter.Serialize(_stream, data);
-			var bytes = _stream.ToArray();
-			var message = new DataNetworkMessage {Bytes = bytes};
-			connection.Send(message);
+
+		public void SendDataMessage<T>(NetworkConnection connection, T data) where T : struct, NetworkMessage {
+			connection.Send(data);
 		}
 
 		public override void OnStartHost() {
 			base.OnStartHost();
 			NetworkServer.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
-			NetworkServer.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 		}
 
 		public override void OnStartClient() {
 			base.OnStartClient();
 			NetworkClient.RegisterHandler<NetAgentIsReadyToPlayNetEvent>(OnNetAgentIsReadyToPlay);
-			NetworkClient.RegisterHandler<DataNetworkMessage>(OnDataMessageReceived);
 		}
 
 		public override void OnClientConnect(NetworkConnection conn) {
 			base.OnClientConnect(conn);
 			Debug.Log("Client: connected to server");
-			Server = new NetAgentState {Connection = conn, IsReady = false};
+			Server = new NetAgentState {Connection = conn};
 		}
 
 		public override void OnClientDisconnect(NetworkConnection conn) {
@@ -125,10 +127,6 @@ namespace NetworkTicTacToe.Behaviours {
 				OnServerReadyToPlay?.Invoke();
 				Debug.Log($"Client: set server as ready {conn.connectionId}");
 			}
-		}
-
-		void OnDataMessageReceived(DataNetworkMessage dataNetworkMessage) {
-			OnReceivedDataMessage?.Invoke(dataNetworkMessage);
 		}
 
 		void TrySendServerReadyMessage() {
