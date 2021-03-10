@@ -43,7 +43,7 @@ namespace NetworkTicTacToe.Gameplay.Players {
 			var obj = _formatter.Deserialize(_stream);
 			switch ( obj ) {
 				case GameplayControllerState state:
-					Debug.Log($"Client gameplay state updated");
+					Debug.Log("Client gameplay state updated");
 					_gameplayController.State = state;
 					if ( _gameplayNetworkManager.IsServer ) {
 						_gameplayNetworkManager.SendDataMessageToAllNonHostClients(_gameplayController.State);	

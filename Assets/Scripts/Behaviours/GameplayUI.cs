@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 using NetworkTicTacToe.Gameplay;
 using NetworkTicTacToe.Gameplay.Players;
+
 using TMPro;
 
 namespace NetworkTicTacToe.Behaviours {
@@ -56,10 +57,10 @@ namespace NetworkTicTacToe.Behaviours {
 			}
 		}
 
-		void OnPartyEnded() {
+		void OnPartyEnded(PlayerSide winner) {
 			RefreshUI();
 			MessageRoot.SetActive(true);
-			MessageText.text = _gameplayController.State.CurrentPlayer == _clientPlayer.PlayerSide ? "You win" : "You died";
+			MessageText.text = winner == _clientPlayer.PlayerSide ? "You win" : "You died";
 		}
 	}
 }
