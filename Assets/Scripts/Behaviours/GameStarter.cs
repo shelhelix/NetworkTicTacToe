@@ -7,32 +7,41 @@ using Mirror;
 
 namespace NetworkTicTacToe.Behaviours {
     public class GameStarter : MonoBehaviour {
+        // Exists only on host
+        Server _server;
+        
         public GameplayUI GameplayUI;
 
         public GameplayController GameplayController;
-        public Player             Player;
+        public ClientPlayer             ClientPlayer;
 
         GameplayNetworkManager _networkManager;
 
         void Start() {
-            GameplayController            =  new GameplayController();
-            _networkManager               =  NetworkManager.singleton as GameplayNetworkManager;
+            _networkManager    =  NetworkManager.singleton as GameplayNetworkManager;
+            GameplayController =  new GameplayController();
+            ClientPlayer       = new ClientPlayer(_networkManager, GameplayController);
+            if ( _networkManager.IsServer ) {
+                _server = new Server();
+                _server.Init(_networkManager);
+            }
             if ( !_networkManager.IsReady ) {
                 _networkManager.OnServerReadyToPlay += OnServerReady;
             } else {
                 OnServerReady();
             }
-            Player = new Player(_networkManager, GameplayController);
             TryInitServer();
             TryInitClient();
         }
 
         void OnDestroy() {
-            Player?.Deinit();
+            ClientPlayer?.Deinit();
+            _server?.Deinit();
             _networkManager.OnServerReadyToPlay -= OnServerReady;
         }
 
         void OnServerReady() {
+            _server?.SendSidesToPlayers();
             print("Game started");
             GameplayUI.Init(this);
         }

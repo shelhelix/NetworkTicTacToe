@@ -26,7 +26,9 @@ namespace NetworkTicTacToe.Gameplay {
 			set {
 				_state = value;
 				OnStateChangedExternally?.Invoke();
-				CheckWin();
+				if ( CheckWin() ) {
+					OnPartyEnded?.Invoke();
+				}
 			}
 		}
 		
@@ -46,9 +48,8 @@ namespace NetworkTicTacToe.Gameplay {
 			PlaceCurPlayerItemOnCell(x, y);
 			if ( CheckWin() ) {
 				OnPartyEnded?.Invoke();
-			} else {
-				RollTurn();
 			}
+			RollTurn();
 		}
 
 		public CellType GetCellState(int x, int y) {
@@ -118,26 +119,25 @@ namespace NetworkTicTacToe.Gameplay {
 			//left diagonal check
 			{
 				var isOk = true;
-				for ( var x = 0; x < State.RowSize; x++ ) {
+				for ( var x = 0; x < State.RowSize && isOk; x++ ) {
 					if ( State.GetCell(x, x) != curPlayerCellType ) {
 						isOk = false;
 					}
-
-					if ( isOk ) {
-						return true;
-					}
+				}
+				if ( isOk ) {
+					return true;
 				}
 			}
 			//right diagonal check
 			{
 				var isOk = true;
-				for ( var x = 0; x < State.RowSize; x++ ) {
+				for ( var x = 0; x < State.RowSize && isOk; x++ ) {
 					if ( State.GetCell(x, State.RowSize-1-x) != curPlayerCellType ) {
 						isOk = false;
 					}
-					if ( isOk ) {
-						return true;
-					}
+				}
+				if ( isOk ) {
+					return true;
 				}
 			}
 			return false;

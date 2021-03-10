@@ -14,12 +14,13 @@ namespace NetworkTicTacToe.Behaviours {
 		public TMP_Text   MessageText;
 		
 		GameplayController _gameplayController;
-		Player             _player;
+		ClientPlayer             _clientPlayer;
 		
 		void OnDestroy() {
 			if ( _gameplayController != null ) {
 				_gameplayController.OnStateChangedExternally -= RefreshUI;
 				_gameplayController.OnPartyEnded             -= OnPartyEnded;
+				_gameplayController.OnTurnChanged            -= RefreshUI;
 			}
 
 			foreach ( var cell in Cells ) {
@@ -30,21 +31,22 @@ namespace NetworkTicTacToe.Behaviours {
 		public void Init(GameStarter starter) {
 			_gameplayController                          =  starter.GameplayController;
 			_gameplayController.OnStateChangedExternally += RefreshUI;
+			_gameplayController.OnTurnChanged            += RefreshUI;
 			_gameplayController.OnPartyEnded             += OnPartyEnded;
-			_player                                      =  starter.Player;
+			_clientPlayer                                =  starter.ClientPlayer;
 			
-			InitCells(_gameplayController, starter.Player);
+			InitCells(_gameplayController, starter.ClientPlayer);
 			RefreshUI();
 			
 			MessageRoot.SetActive(false);
 		}
 
-		void InitCells(GameplayController gameplayController, Player player) {
+		void InitCells(GameplayController gameplayController, ClientPlayer clientPlayer) {
 			// Init cells 
 			for ( var index = 0; index < Cells.Count; index++ ) {
 				var y = index / GameplayController.BoardSideSize;
 				var x = index % GameplayController.BoardSideSize;
-				Cells[index].Init(gameplayController, player, x, y);
+				Cells[index].Init(gameplayController, clientPlayer, x, y);
 			}
 		}
 		
@@ -57,7 +59,7 @@ namespace NetworkTicTacToe.Behaviours {
 		void OnPartyEnded() {
 			RefreshUI();
 			MessageRoot.SetActive(true);
-			MessageText.text = _gameplayController.State.CurrentPlayer == _player.PlayerSide ? "You win" : "You died";
+			MessageText.text = _gameplayController.State.CurrentPlayer == _clientPlayer.PlayerSide ? "You win" : "You died";
 		}
 	}
 }
